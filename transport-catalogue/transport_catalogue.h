@@ -37,16 +37,21 @@ namespace DataBase {
 				return (size_t)el.first_station + ((size_t)el.second_station * 37);
 			}
 		};
+		struct Distance {
+			int distance_real;
+			double distance_geographical;
+			int num_unic_stops;
+		};
 
 	public:
 		TransportCatalogue() = default;
 		void AddStop(Stop& stop);
 
-		void AddBus(std::string num, std::vector<std::string> name_stops, bool flag_is_cirle_route);
+		void AddBus(std::string& num, std::vector<std::string>& name_stops, bool flag_is_cirle_route);
 
-		const Bus* BusGetter(std::string_view num_bus) const;
+		const Bus* GetBus(std::string_view num_bus) const;
 
-		const Stop* StopGetter(std::string_view name_stop) const;
+		const Stop* GetStop(std::string_view name_stop) const;
 
 		template <typename T>
 		void InputAllDistance(T& distance_to_another_stops) {
@@ -62,56 +67,7 @@ namespace DataBase {
 			}
 		}
 
-		auto CalculateRealDistance(const Bus* bus)const {
-			int distance_real = 0;
-			double distance_geographical = 0;
-			std::set< std::string_view> unic_stops;
-			//хочу за один проход по вектору посчитать реальное и географическое расстоляние
-			//нужно будет учесть, если маршрут из одной остановки???
-			for (int first = 0, second = 1; second < bus->stops_at_route.size(); ++first, ++second) {
-				auto ptr1 = bus->stops_at_route[first];
-				auto ptr2 = bus->stops_at_route[second];
-				//для географической дистанции
-				distance_geographical += ComputeDistance(Coordinates{ bus->stops_at_route[first]->coords.first,	bus->stops_at_route[first]->coords.second },
-					Coordinates{ bus->stops_at_route[second]->coords.first,	bus->stops_at_route[second]->coords.second });
-				unic_stops.insert(bus->stops_at_route[first]->name);
-
-				//для реальной дистанции, без учета того, что конечная остановка может быть кругом
-				if (map_for_distance.count({ ptr1, ptr2 })) {
-					distance_real += map_for_distance.at({ ptr1, ptr2 });
-				}
-				else if (map_for_distance.count({ ptr2, ptr1 })) {
-					distance_real += map_for_distance.at({ ptr2, ptr1 });
-				}
-				//проверка на круговое движение
-				if (!bus->circle) {
-					if (map_for_distance.count({ ptr2, ptr1 })) {
-						distance_real += map_for_distance.at({ ptr2, ptr1 });
-					}
-					else {
-						distance_real += map_for_distance.at({ ptr1, ptr2 });
-					}
-				}
-			}
-			unic_stops.insert(bus->stops_at_route.back()->name);
-			//проверка последняя остановка - круг, если да, то плюсуем в реальную дистанцию
-			//P.S в map_for_distance круг будет храниться в виде "name","name", где name одинаковые.
-			auto ptr = bus->stops_at_route.back();
-			if (map_for_distance.count({ ptr, ptr })) {
-				distance_real += map_for_distance.at({ ptr, ptr });
-			}
-			//для георафической дистанции, если движение круговое, то дистанциб умножить на два
-			if (!bus->circle) {
-				distance_geographical *= 2;
-			}
-			struct result {
-				int distance_real;
-				double distance_geographical;
-				int num_unic_stops;
-			} res{ distance_real, distance_geographical,(int)unic_stops.size() };
-
-			return res;
-		}
+		Distance CalculateRealDistance(const Bus* bus)const;
 
 	private:
 		std::deque< Stop> stops_;

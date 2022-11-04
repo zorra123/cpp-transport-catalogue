@@ -15,9 +15,8 @@ int main() {
 	TransportCatalogue test;
 	ReadInputData(file, test);
 	StatReader(file, test);*/
-
 	DataBase::TransportCatalogue test;
 	ReadInputData(cin, test);
-	StatReader(cin, test);
+	StatReader(cin, cout, test);
 	return 0;
 }
