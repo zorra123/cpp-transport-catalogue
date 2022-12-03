@@ -1,26 +1,37 @@
 #pragma once
 #include <unordered_map>
-#include <unordered_set>
-#include <set>
-#include <deque>
 #include <string>
 #include <vector>
-#include <string_view>
 #include "geo.h"
+#include "domain.h"
 
 namespace DataBase {
-	class TransportCatalogue {
+	class TransportCatalogue :public stops::Stops, public buses::Buses {
 	public:
-		struct Stop {
-			std::string name;
-			std::pair<double, double> coords;
-			std::set<std::string_view> buses;
+		TransportCatalogue() = default;
+
+		void AddBus(std::string& num, std::vector<std::string>& name_stops, bool flag_is_cirle_route) override;
+
+		template <typename T>
+		void InputAllDistance(T& distance_to_another_stops) {
+			for (auto& [first_station, vec_second_stations] : distance_to_another_stops) {
+				for (auto& [name_of_second_station, distance] : vec_second_stations) {
+					auto* ptr_first_station = container_stops_[first_station];
+					auto* ptr_second_station = container_stops_[name_of_second_station];
+					DistanceBetweenStops tmp_struct;
+					tmp_struct.first_station = ptr_first_station;
+					tmp_struct.second_station = ptr_second_station;
+					map_for_distance[tmp_struct] = distance;
+				}
+			}
+		}
+		struct Distance {
+			int distance_real;
+			double distance_geographical;
+			int num_unic_stops;
 		};
-		struct Bus {
-			std::string name;
-			std::vector< Stop*> stops_at_route;
-			bool circle;
-		};
+		Distance CalculateRealDistance(const Bus* bus)const;
+			
 	private:
 		struct DistanceBetweenStops {
 			Stop* first_station = nullptr;
@@ -37,45 +48,8 @@ namespace DataBase {
 				return (size_t)el.first_station + ((size_t)el.second_station * 37);
 			}
 		};
-		struct Distance {
-			int distance_real;
-			double distance_geographical;
-			int num_unic_stops;
-		};
-
-	public:
-		TransportCatalogue() = default;
-		void AddStop(Stop& stop);
-
-		void AddBus(std::string& num, std::vector<std::string>& name_stops, bool flag_is_cirle_route);
-
-		const Bus* GetBus(std::string_view num_bus) const;
-
-		const Stop* GetStop(std::string_view name_stop) const;
-
-		template <typename T>
-		void InputAllDistance(T& distance_to_another_stops) {
-			for (auto& [first_station, vec_second_stations] : distance_to_another_stops) {
-				for (auto& second_station : vec_second_stations) {
-					auto* ptr_first_station = container_stops_[first_station];
-					auto* ptr_second_station = container_stops_[second_station.first];
-					DistanceBetweenStops op;
-					op.first_station = ptr_first_station;
-					op.second_station = ptr_second_station;
-					map_for_distance[op] = second_station.second;
-				}
-			}
-		}
-
-		Distance CalculateRealDistance(const Bus* bus)const;
 
 	private:
-		std::deque< Stop> stops_;
-		std::unordered_map<std::string_view, Stop*> container_stops_;
-
-		std::deque< Bus> buses_;
-		std::unordered_map<std::string_view, Bus*> container_buses_;
-
 		std::unordered_map< DistanceBetweenStops, int, DistanceBetweenStops_Hasher_> map_for_distance;
 	};
 }

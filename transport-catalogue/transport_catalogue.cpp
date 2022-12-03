@@ -1,11 +1,9 @@
 #include "transport_catalogue.h"
 
 using namespace DataBase;
+using namespace stops;
+using namespace buses;
 
-void TransportCatalogue::AddStop(Stop& stop) {
-	stops_.push_back(stop);
-	container_stops_[stops_.back().name] = &stops_.back();
-}
 
 void TransportCatalogue::AddBus(std::string& num, std::vector<std::string>& name_stops, bool flag_is_cirle_route) {
 	Bus bus;
@@ -20,46 +18,28 @@ void TransportCatalogue::AddBus(std::string& num, std::vector<std::string>& name
 	container_buses_[buses_.back().name] = &buses_.back();
 }
 
-const TransportCatalogue::Bus* TransportCatalogue::GetBus(std::string_view num_bus) const {
-	if (container_buses_.count(num_bus)) {
-		return container_buses_.at(num_bus);
-	}
-	else {
-		return nullptr;
-	}
-}
-
-const TransportCatalogue::Stop* TransportCatalogue::GetStop(std::string_view name_stop) const {
-	if (container_stops_.count(name_stop)) {
-		return container_stops_.at(name_stop);
-	}
-	else {
-		return nullptr;
-	}
-}
-
 TransportCatalogue::Distance TransportCatalogue::CalculateRealDistance(const Bus* bus)const {
 	int distance_real = 0;
 	double distance_geographical = 0;
 	std::set< std::string_view> unic_stops;
-	//хочу за один проход по вектору посчитать реальное и географическое расстоляние
-	//нужно будет учесть, если маршрут из одной остановки???
+	//С…РѕС‡Сѓ Р·Р° РѕРґРёРЅ РїСЂРѕС…РѕРґ РїРѕ РІРµРєС‚РѕСЂСѓ РїРѕСЃС‡РёС‚Р°С‚СЊ СЂРµР°Р»СЊРЅРѕРµ Рё РіРµРѕРіСЂР°С„РёС‡РµСЃРєРѕРµ СЂР°СЃСЃС‚РѕР»СЏРЅРёРµ
+	//РЅСѓР¶РЅРѕ Р±СѓРґРµС‚ СѓС‡РµСЃС‚СЊ, РµСЃР»Рё РјР°СЂС€СЂСѓС‚ РёР· РѕРґРЅРѕР№ РѕСЃС‚Р°РЅРѕРІРєРё???
 	for (int first = 0, second = 1; second < bus->stops_at_route.size(); ++first, ++second) {
 		auto ptr1 = bus->stops_at_route[first];
 		auto ptr2 = bus->stops_at_route[second];
-		//для географической дистанции
-		distance_geographical += ComputeDistance(Coordinates{ bus->stops_at_route[first]->coords.first,	bus->stops_at_route[first]->coords.second },
-			Coordinates{ bus->stops_at_route[second]->coords.first,	bus->stops_at_route[second]->coords.second });
+		//РґР»СЏ РіРµРѕРіСЂР°С„РёС‡РµСЃРєРѕР№ РґРёСЃС‚Р°РЅС†РёРё
+		distance_geographical += ComputeDistance(geo::Coordinates{ bus->stops_at_route[first]->coords.lat,	bus->stops_at_route[first]->coords.lng },
+			geo::Coordinates{ bus->stops_at_route[second]->coords.lat,	bus->stops_at_route[second]->coords.lng });
 		unic_stops.insert(bus->stops_at_route[first]->name);
 
-		//для реальной дистанции, без учета того, что конечная остановка может быть кругом
+		//РґР»СЏ СЂРµР°Р»СЊРЅРѕР№ РґРёСЃС‚Р°РЅС†РёРё, Р±РµР· СѓС‡РµС‚Р° С‚РѕРіРѕ, С‡С‚Рѕ РєРѕРЅРµС‡РЅР°СЏ РѕСЃС‚Р°РЅРѕРІРєР° РјРѕР¶РµС‚ Р±С‹С‚СЊ РєСЂСѓРіРѕРј
 		if (map_for_distance.count({ ptr1, ptr2 })) {
 			distance_real += map_for_distance.at({ ptr1, ptr2 });
 		}
 		else if (map_for_distance.count({ ptr2, ptr1 })) {
 			distance_real += map_for_distance.at({ ptr2, ptr1 });
 		}
-		//проверка на круговое движение
+		//РїСЂРѕРІРµСЂРєР° РЅР° РєСЂСѓРіРѕРІРѕРµ РґРІРёР¶РµРЅРёРµ
 		if (!bus->circle) {
 			if (map_for_distance.count({ ptr2, ptr1 })) {
 				distance_real += map_for_distance.at({ ptr2, ptr1 });
@@ -70,13 +50,13 @@ TransportCatalogue::Distance TransportCatalogue::CalculateRealDistance(const Bus
 		}
 	}
 	unic_stops.insert(bus->stops_at_route.back()->name);
-	//проверка последняя остановка - круг, если да, то плюсуем в реальную дистанцию
-	//P.S в map_for_distance круг будет храниться в виде "name","name", где name одинаковые.
+	//РїСЂРѕРІРµСЂРєР° РїРѕСЃР»РµРґРЅСЏСЏ РѕСЃС‚Р°РЅРѕРІРєР° - РєСЂСѓРі, РµСЃР»Рё РґР°, С‚Рѕ РїР»СЋСЃСѓРµРј РІ СЂРµР°Р»СЊРЅСѓСЋ РґРёСЃС‚Р°РЅС†РёСЋ
+	//P.S РІ map_for_distance РєСЂСѓРі Р±СѓРґРµС‚ С…СЂР°РЅРёС‚СЊСЃСЏ РІ РІРёРґРµ "name","name", РіРґРµ name РѕРґРёРЅР°РєРѕРІС‹Рµ.
 	auto ptr = bus->stops_at_route.back();
 	if (map_for_distance.count({ ptr, ptr })) {
 		distance_real += map_for_distance.at({ ptr, ptr });
 	}
-	//для георафической дистанции, если движение круговое, то дистанциб умножить на два
+	//РґР»СЏ РіРµРѕСЂР°С„РёС‡РµСЃРєРѕР№ РґРёСЃС‚Р°РЅС†РёРё, РµСЃР»Рё РґРІРёР¶РµРЅРёРµ РєСЂСѓРіРѕРІРѕРµ, С‚Рѕ РґРёСЃС‚Р°РЅС†РёР± СѓРјРЅРѕР¶РёС‚СЊ РЅР° РґРІР°
 	if (!bus->circle) {
 		distance_geographical *= 2;
 	}
