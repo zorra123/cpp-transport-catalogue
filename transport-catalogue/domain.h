@@ -16,8 +16,8 @@ namespace stops {
 			geo::Coordinates coords;
 			std::set<std::string_view> buses;
 		};
-		void AddStop(Stop& stop);
-		const Stop* GetStop(std::string_view name_stop) const;
+		void AddStop(Stop stop);
+		Stop* GetStop(std::string_view name_stop) const;
 		std::map<std::string_view, Stop*> GetAllStops() {
 			return { container_stops_.begin(),container_stops_.end() };
 		}
@@ -31,12 +31,13 @@ namespace buses {
 	using namespace stops;
 	class Buses {
 	public:
+		Buses(stops::Stops& stops) :stops_(stops) {};
 		struct Bus {
 			std::string name;
 			std::vector< Stops::Stop*> stops_at_route;
 			bool circle;
 		};
-		virtual void AddBus(std::string& num, std::vector<std::string>& name_stops, bool flag_is_cirle_route) = 0;
+		void AddBus(std::string& num, std::vector<std::string>& name_stops, bool flag_is_cirle_route);
 		const Bus* GetBus(std::string_view num_bus) const;
 		std::map<std::string_view, Bus*> GetAllBuses() const {
 			return { container_buses_.begin(),container_buses_.end() };
@@ -45,6 +46,7 @@ namespace buses {
 	protected:
 		std::deque< Bus> buses_;
 		std::unordered_map<std::string_view, Bus*> container_buses_;
+		stops::Stops& stops_;
 
 	};
 }

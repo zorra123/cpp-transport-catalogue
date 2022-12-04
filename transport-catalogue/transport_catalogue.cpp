@@ -6,19 +6,25 @@ using namespace buses;
 
 
 void TransportCatalogue::AddBus(std::string& num, std::vector<std::string>& name_stops, bool flag_is_cirle_route) {
-	Bus bus;
-	buses_.push_back(bus);
-
-	buses_.back().name = num;
-	for (auto& el : name_stops) {
-		buses_.back().stops_at_route.push_back(&*container_stops_.at(el));
-		container_stops_[el]->buses.insert(buses_.back().name);
-	}
-	buses_.back().circle = flag_is_cirle_route;
-	container_buses_[buses_.back().name] = &buses_.back();
+	class_buses_.AddBus(num, name_stops, flag_is_cirle_route);
 }
 
-TransportCatalogue::Distance TransportCatalogue::CalculateRealDistance(const Bus* bus)const {
+const Buses::Bus* TransportCatalogue::GetBus(std::string_view num_bus) const
+{
+	return class_buses_.GetBus(num_bus);
+}
+
+void TransportCatalogue::AddStop(std::string name, double latitude, double longitude)
+{
+	class_stops_.AddStop(stops::Stops::Stop{ name,{latitude,longitude},{} });
+}
+
+Stops::Stop* TransportCatalogue::GetStop(std::string_view name_stop) const
+{
+	return class_stops_.GetStop(name_stop);
+}
+
+TransportCatalogue::Distance TransportCatalogue::CalculateRealDistance(const Buses::Bus* bus)const {
 	int distance_real = 0;
 	double distance_geographical = 0;
 	std::set< std::string_view> unic_stops;

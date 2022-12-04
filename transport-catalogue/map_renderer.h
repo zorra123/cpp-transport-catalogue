@@ -46,5 +46,5 @@ namespace map_reader {
 
 
 
-	std::stringstream Rendering(Settings& settings, DataBase::TransportCatalogue& catalog);
+	std::stringstream Render(Settings& settings, DataBase::TransportCatalogue& catalog);
 }

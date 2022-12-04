@@ -128,11 +128,11 @@ struct Visitor {
     }
 };
 
-class MapRendering {
+class MapRender {
 public:
-    MapRendering(Settings& settings, TransportCatalogue& catalog) :settings_(settings), catalog_(catalog) {};
+    MapRender(Settings& settings, TransportCatalogue& catalog) :settings_(settings), catalog_(catalog) {};
     void AddPolyline();
-    void AddTextMarshrutov();
+    void AddRoutText();
     void AddCircle();
     void AddTextForStops();
     void Rendering(std::ostream& out);
@@ -151,19 +151,19 @@ private:
 
 };
 
-std::stringstream map_reader::Rendering(Settings& settings, DataBase::TransportCatalogue& catalog)
+std::stringstream map_reader::Render(Settings& settings, DataBase::TransportCatalogue& catalog)
 {
     std::stringstream str;
-    MapRendering map_rend(settings, catalog);
+    MapRender map_rend(settings, catalog);
     map_rend.AddPolyline();
-    map_rend.AddTextMarshrutov();
+    map_rend.AddRoutText();
     map_rend.AddCircle();
     map_rend.AddTextForStops();
     map_rend.Rendering(str);
     return str;
 }
 
-void MapRendering::AddPolyline()
+void MapRender::AddPolyline()
 {
     //получаем мапу из автобусов и их остановок
     auto coords_for_buses = CoordsForBuses();
@@ -196,7 +196,7 @@ void MapRendering::AddPolyline()
 
 }
 
-void MapRendering::AddTextMarshrutov() {
+void MapRender::AddRoutText() {
     struct Name {
         svg::Text podloshka;
         svg::Text name;
@@ -254,7 +254,7 @@ void MapRendering::AddTextMarshrutov() {
     }
 }
 
-void MapRendering::AddCircle()
+void MapRender::AddCircle()
 {
     auto stops = catalog_.GetAllStops();
     for (auto& [name, value] : stops) {
@@ -269,7 +269,7 @@ void MapRendering::AddCircle()
     }
 }
 
-void MapRendering::AddTextForStops()
+void MapRender::AddTextForStops()
 {
     struct Name {
         svg::Text podloshka;
@@ -304,13 +304,13 @@ void MapRendering::AddTextForStops()
 
 }
 
-void MapRendering::Rendering(std::ostream& out)
+void MapRender::Rendering(std::ostream& out)
 {
     doc.Render(out);
 
 }
 
-std::map<std::string, std::vector<geo::Coordinates>> MapRendering::CoordsForBuses()
+std::map<std::string, std::vector<geo::Coordinates>> MapRender::CoordsForBuses()
 {
     std::map<std::string, std::vector<geo::Coordinates>> res;
     auto vec_buses = catalog_.GetAllBuses();
@@ -326,7 +326,7 @@ std::map<std::string, std::vector<geo::Coordinates>> MapRendering::CoordsForBuse
     return res;
 }
 
-SphereProjector MapRendering::CreateProj(std::map<std::string, std::vector<geo::Coordinates>> coords_for_buses, double WIDTH, double HEIGHT, double PADDING)
+SphereProjector MapRender::CreateProj(std::map<std::string, std::vector<geo::Coordinates>> coords_for_buses, double WIDTH, double HEIGHT, double PADDING)
 {
     std::vector<geo::Coordinates> all_coords;
     //проходим по всем векторам и копируем их в результирующий, таким образом у нас в одном векторе будут все координаты
