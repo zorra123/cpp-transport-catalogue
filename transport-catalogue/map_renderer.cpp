@@ -132,7 +132,7 @@ class MapRender {
 public:
     MapRender(Settings& settings, TransportCatalogue& catalog) :settings_(settings), catalog_(catalog) {};
     void AddPolyline();
-    void AddRoutText();
+    void AddRouteText();
     void AddCircle();
     void AddTextForStops();
     void Rendering(std::ostream& out);
@@ -156,7 +156,7 @@ std::stringstream map_reader::Render(Settings& settings, DataBase::TransportCata
     std::stringstream str;
     MapRender map_rend(settings, catalog);
     map_rend.AddPolyline();
-    map_rend.AddRoutText();
+    map_rend.AddRouteText();
     map_rend.AddCircle();
     map_rend.AddTextForStops();
     map_rend.Rendering(str);
@@ -196,7 +196,7 @@ void MapRender::AddPolyline()
 
 }
 
-void MapRender::AddRoutText() {
+void MapRender::AddRouteText() {
     struct Name {
         svg::Text podloshka;
         svg::Text name;
