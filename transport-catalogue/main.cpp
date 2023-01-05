@@ -6,17 +6,18 @@
 #include "transport_catalogue.h"
 #include "json_reader.h"
 #include "request_handler.h"
+
 using namespace std;
 
 
-int main() {
 
+int main(int argc, char* argv[]) {
+	ifstream file("..\\my.json"s);
 
-	ifstream file("my.json");
 	DataBase::TransportCatalogue catalog;
 	Request::RequestHandler req(catalog);
 	ReadJson(file, req);
-	//ReadJson(std::cin, test);
+	//ReadJson(std::cin, req);
 	req.PrintAnswer(std::cout);
 	return 0;
 }

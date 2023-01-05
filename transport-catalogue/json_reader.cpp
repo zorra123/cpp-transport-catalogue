@@ -55,21 +55,21 @@ void JsonReader::LoadStops()
 	}
 
 	auto ptr_map_requsts = std::make_unique<json::Document>(json::LoadJSON(str));
-	auto& map_requsts = ptr_map_requsts->GetRoot().AsMap();
+	auto& map_requsts = ptr_map_requsts->GetRoot().AsDict();
 	auto& base_requests = map_requsts.at("base_requests"s);
 
 	json::Array bus_arr;
 
 	std::for_each(base_requests.AsArray().begin(), base_requests.AsArray().end(), [&](auto& el) {
-		if (el.AsMap().at("type").AsString() == "Stop") {
+		if (el.AsDict().at("type").AsString() == "Stop") {
 
-			std::string name = el.AsMap().at("name").AsString();
-			double latitude = el.AsMap().at("latitude").AsDouble();
-			double longitude = el.AsMap().at("longitude").AsDouble();
+			std::string name = el.AsDict().at("name").AsString();
+			double latitude = el.AsDict().at("latitude").AsDouble();
+			double longitude = el.AsDict().at("longitude").AsDouble();
 
 			request_handler_.AddStop(name, latitude, longitude);
 
-			for (auto& [key, value] : el.AsMap().at("road_distances").AsMap()) {
+			for (auto& [key, value] : el.AsDict().at("road_distances").AsDict()) {
 				request_handler_.AddDistanceToAnotherStops(name, key, value.AsInt());
 			}
 		}
@@ -81,19 +81,19 @@ void JsonReader::LoadStops()
 	buses_ = std::make_unique<json::Array>(bus_arr);
 	stat_requests_ = std::make_unique<json::Array>(map_requsts.at("stat_requests"s).AsArray());
 	if (map_requsts.count("render_settings")) {
-		render_settings_ = std::make_unique<json::Dict>(map_requsts.at("render_settings"s).AsMap());
+		render_settings_ = std::make_unique<json::Dict>(map_requsts.at("render_settings"s).AsDict());
 	}
 }
 
 void JsonReader::ReadBuses()
 {	
 	for (auto& el : *(buses_.get())) {
-		std::string bus_name = el.AsMap().at("name").AsString();
+		std::string bus_name = el.AsDict().at("name").AsString();
 		std::vector<std::string> name_stops;
-		for (auto& bus_stops : el.AsMap().at("stops").AsArray()) {
+		for (auto& bus_stops : el.AsDict().at("stops").AsArray()) {
 			name_stops.push_back(bus_stops.AsString());
 		}
-		bool flag_is_cirle_route = el.AsMap().at("is_roundtrip").AsBool();
+		bool flag_is_cirle_route = el.AsDict().at("is_roundtrip").AsBool();
 		request_handler_.AddBus(bus_name, name_stops, flag_is_cirle_route);
 	}
 }
@@ -163,18 +163,18 @@ void JsonReader::LoadSvgSettings()
 void JsonReader::LoadRequests()
 {
 	for (auto& el : *(stat_requests_.get())) {
-		if (el.AsMap().at("type").AsString() == "Bus") {
-			std::string name_bus = el.AsMap().at("name").AsString();
-			int id = el.AsMap().at("id").AsInt();
+		if (el.AsDict().at("type").AsString() == "Bus") {
+			std::string name_bus = el.AsDict().at("name").AsString();
+			int id = el.AsDict().at("id").AsInt();
 			request_handler_.RequestBus(name_bus, id);
 		}
-		else if (el.AsMap().at("type").AsString() == "Stop") {
-			std::string name_stop = el.AsMap().at("name").AsString();
-			int id = el.AsMap().at("id").AsInt();
+		else if (el.AsDict().at("type").AsString() == "Stop") {
+			std::string name_stop = el.AsDict().at("name").AsString();
+			int id = el.AsDict().at("id").AsInt();
 			request_handler_.RequestStop(name_stop, id);
 		}
 		else {
-			int id = el.AsMap().at("id").AsInt();
+			int id = el.AsDict().at("id").AsInt();
 			request_handler_.RequestSvg(id);
 		}
 	}

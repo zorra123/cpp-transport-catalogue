@@ -30,7 +30,7 @@ TransportCatalogue::Distance TransportCatalogue::CalculateRealDistance(const Bus
 	std::set< std::string_view> unic_stops;
 	//хочу за один проход по вектору посчитать реальное и географическое расстоляние
 	//нужно будет учесть, если маршрут из одной остановки???
-	for (int first = 0, second = 1; second < bus->stops_at_route.size(); ++first, ++second) {
+	for (int first = 0, second = 1; second <(int) bus->stops_at_route.size(); ++first, ++second) {
 		auto ptr1 = bus->stops_at_route[first];
 		auto ptr2 = bus->stops_at_route[second];
 		//для географической дистанции

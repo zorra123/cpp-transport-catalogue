@@ -3,12 +3,12 @@
 #include <unordered_map>
 #include "transport_catalogue.h"
 #include "map_renderer.h"
-#include "json.h"
+#include "json_builder.h"
 namespace Request {
 
 	class RequestHandler {
 	public:
-		RequestHandler(DataBase::TransportCatalogue& catalog) :catalog_(catalog) {};
+		RequestHandler(DataBase::TransportCatalogue& catalog) :catalog_(catalog) { build.StartArray(); };
 		void AddStop(std::string name, double latitude, double longitude);
 		void AddDistanceToAnotherStops(std::string name_bus_from, std::string name_bus_to, int dist);
 		void LoadDistanceToCatalog();
@@ -23,5 +23,6 @@ namespace Request {
 		std::unordered_map<std::string, std::vector<std::pair<std::string, int>>> distance_to_another_stops;
 		map_reader::Settings settings_;
 		json::Array answer;
+		json::Builder build;
 	};
 }
