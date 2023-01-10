@@ -37,7 +37,7 @@ namespace buses {
 			std::vector< Stops::Stop*> stops_at_route;
 			bool circle;
 		};
-		void AddBus(std::string& num, std::vector<std::string>& name_stops, bool flag_is_cirle_route);
+		void AddBus(const std::string& num, const std::vector<std::string>& name_stops, bool flag_is_cirle_route);
 		const Bus* GetBus(std::string_view num_bus) const;
 		std::map<std::string_view, Bus*> GetAllBuses() const {
 			return { container_buses_.begin(),container_buses_.end() };

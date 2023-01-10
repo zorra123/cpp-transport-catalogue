@@ -1,6 +1,127 @@
 #include "json.h"
 
 #include <iterator>
+using namespace json;
+
+
+Node::Node(Value& val)
+{
+    (Value&)*this = std::move(val);
+}
+
+bool json::Node::IsInt() const
+{
+    return std::holds_alternative<int>(*this);
+}
+
+int json::Node::AsInt() const
+{
+    using namespace std::literals;
+    if (!IsInt()) {
+        throw std::logic_error("Not an int"s);
+    }
+    return std::get<int>(*this);
+}
+
+bool json::Node::IsPureDouble() const
+{
+    return std::holds_alternative<double>(*this);
+}
+
+bool json::Node::IsDouble() const
+{
+    return IsInt() || IsPureDouble();
+}
+
+double json::Node::AsDouble() const
+{
+    using namespace std::literals;
+    if (!IsDouble()) {
+        throw std::logic_error("Not a double"s);
+    }
+    return IsPureDouble() ? std::get<double>(*this) : AsInt();
+}
+
+bool json::Node::IsBool() const
+{
+    return std::holds_alternative<bool>(*this);
+}
+
+bool json::Node::AsBool() const
+{
+    using namespace std::literals;
+    if (!IsBool()) {
+        throw std::logic_error("Not a bool"s);
+    }
+    return std::get<bool>(*this);
+}
+
+bool json::Node::IsNull() const
+{
+    return std::holds_alternative<std::nullptr_t>(*this);
+}
+
+bool json::Node::IsArray() const
+{
+    return std::holds_alternative<Array>(*this);
+}
+
+const Array& json::Node::AsArray() const
+{
+    using namespace std::literals;
+    if (!IsArray()) {
+        throw std::logic_error("Not an array"s);
+    }
+
+    return std::get<Array>(*this);
+}
+
+bool json::Node::IsString() const
+{
+    return std::holds_alternative<std::string>(*this);
+}
+
+const std::string& json::Node::AsString() const
+{
+    using namespace std::literals;
+    if (!IsString()) {
+        throw std::logic_error("Not a string"s);
+    }
+
+    return std::get<std::string>(*this);
+}
+
+bool json::Node::IsDict() const
+{
+    return std::holds_alternative<Dict>(*this);
+}
+
+const Dict& json::Node::AsDict() const
+{
+    using namespace std::literals;
+    if (!IsDict()) {
+        throw std::logic_error("Not a dict"s);
+    }
+
+    return std::get<Dict>(*this);
+}
+
+bool json::Node::operator==(const Node& rhs) const
+{
+    return GetValue() == rhs.GetValue();
+}
+
+void json::Node::AddToDict(std::string key, Node& node)
+{
+    std::get<Dict>(*this).emplace(key, std::move(node));
+}
+
+void json::Node::AddToArray(Node& node)
+{
+    std::get<Array>(*this).push_back(std::move(node));
+}
+
+
 
 namespace json {
 
@@ -347,5 +468,6 @@ Document Load(std::istream& input) {
 void Print(const Document& doc, std::ostream& output) {
     PrintNode(doc.GetRoot(), PrintContext{output});
 }
+
 
 }  // namespace json

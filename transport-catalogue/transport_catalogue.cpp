@@ -5,7 +5,7 @@ using namespace stops;
 using namespace buses;
 
 
-void TransportCatalogue::AddBus(std::string& num, std::vector<std::string>& name_stops, bool flag_is_cirle_route) {
+void TransportCatalogue::AddBus(const std::string& num, const std::vector<std::string>& name_stops, bool flag_is_cirle_route) {
 	class_buses_.AddBus(num, name_stops, flag_is_cirle_route);
 }
 
@@ -14,7 +14,7 @@ const Buses::Bus* TransportCatalogue::GetBus(std::string_view num_bus) const
 	return class_buses_.GetBus(num_bus);
 }
 
-void TransportCatalogue::AddStop(std::string name, double latitude, double longitude)
+void TransportCatalogue::AddStop(const std::string& name, double latitude, double longitude)
 {
 	class_stops_.AddStop(stops::Stops::Stop{ name,{latitude,longitude},{} });
 }

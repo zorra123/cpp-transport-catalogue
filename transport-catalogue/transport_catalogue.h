@@ -10,13 +10,13 @@ namespace DataBase {
 	public:
 		TransportCatalogue() :class_buses_(class_stops_) {};
 
-		void AddBus(std::string& num, std::vector<std::string>& name_stops, bool flag_is_cirle_route);
+		void AddBus(const std::string& num, const std::vector<std::string>& name_stops, bool flag_is_cirle_route);
 		const buses::Buses::Bus* GetBus(std::string_view num_bus) const;
 		auto GetAllBuses() const {
 			return class_buses_.GetAllBuses();
 		}
 
-		void AddStop(std::string name, double latitude, double longitude);
+		void AddStop(const std::string& name, double latitude, double longitude);
 		stops::Stops::Stop* GetStop(std::string_view name_stop) const;
 		auto GetAllStops() {
 			return class_stops_.GetAllStops();

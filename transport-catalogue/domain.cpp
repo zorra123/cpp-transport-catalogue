@@ -19,7 +19,7 @@ Stops::Stop* stops::Stops::GetStop(std::string_view name_stop) const
 	}
 }
 
-void buses::Buses::AddBus(std::string& num, std::vector<std::string>& name_stops, bool flag_is_cirle_route)
+void buses::Buses::AddBus(const std::string& num, const std::vector<std::string>& name_stops, bool flag_is_cirle_route)
 {
 	Bus bus;
 	buses_.push_back(bus);

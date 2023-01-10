@@ -3,13 +3,12 @@ using namespace Request;
 using namespace DataBase;
 using namespace std::string_literals;
 
-void RequestHandler::AddStop(std::string name, double latitude, double longitude)
+void RequestHandler::AddStop(const std::string& name, double latitude, double longitude)
 {
 	catalog_.AddStop(name, latitude, longitude);
-
 }
 
-void RequestHandler::AddDistanceToAnotherStops(std::string name_bus_from, std::string name_bus_to, int dist)
+void RequestHandler::AddDistanceToAnotherStops(const std::string& name_bus_from,const std::string& name_bus_to, int dist)
 {
 	distance_to_another_stops[name_bus_from].push_back({ name_bus_to, dist });
 }
@@ -19,17 +18,17 @@ void Request::RequestHandler::LoadDistanceToCatalog()
 	catalog_.InputAllDistance(distance_to_another_stops);
 }
 
-void RequestHandler::AddBus(std::string name, std::vector<std::string> name_stops, bool flag_is_cirle_route)
+void RequestHandler::AddBus(const std::string& name, const std::vector<std::string> &name_stops, bool flag_is_cirle_route)
 {
 	catalog_.AddBus(name, name_stops, flag_is_cirle_route);
 }
 
-void RequestHandler::AddMapSettings(map_reader::Settings& settings)
+void RequestHandler::AddMapSettings(const map_reader::Settings& settings)
 {
 	settings_ = settings;
 }
 
-void RequestHandler::RequestBus(std::string bus_name, int id_req)
+void RequestHandler::RequestBus(const std::string& bus_name, int id_req)
 {
 	//json::Dict map_for_bus;
 	json::Builder map_for_bus_;
@@ -64,7 +63,7 @@ void RequestHandler::RequestBus(std::string bus_name, int id_req)
 	build.Value(map_for_bus_.EndDict().Build());
 }
 
-void RequestHandler::RequestStop(std::string stop_name, int id_req)
+void RequestHandler::RequestStop(const std::string& stop_name, int id_req)
 {
 	//json::Dict map_for_stop;
 
