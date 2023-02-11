@@ -1,13 +1,13 @@
 #pragma once
-
+#include <memory>
 #include "transport_catalogue.h"
 #include "router.h"
 #include "graph.h"
 #include "domain.h"
-#include <iostream>
+
 namespace RouterTransport {
 	class TransportRouter {
-	public: 
+	public:
 		struct Struct_for_graph {
 			stops::Stops::Stop stop;
 			bool transfer = false;
@@ -15,7 +15,7 @@ namespace RouterTransport {
 				return stop == other.stop ? transfer < other.transfer : stop < other.stop;
 			}
 		};
-		
+
 		struct Weight {
 			double travel_time = 0;
 			double wait_time = 0;
@@ -58,5 +58,6 @@ namespace RouterTransport {
 		RoutingSettings rout_settings_;
 		graph::DirectedWeightedGraph <Weight> graph_;
 		std::set<Struct_for_graph> set_for_graph_;
+		std::unique_ptr< graph::Router<Weight>> router_ptr_ = {};
 	};
 }

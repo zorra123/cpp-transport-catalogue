@@ -183,12 +183,11 @@ void RouterTransport::TransportRouter::BuildEdge()
 		}
 	}
 	is_empty_ = false;
+	router_ptr_ = std::make_unique<graph::Router<Weight>>(graph_);
 }
 
 std::optional<std::vector<RouterTransport::TransportRouter::Weight>> RouterTransport::TransportRouter::RequestRoute(const RoutingSettings& rout_settings)
 {
-
-	static graph::Router router(graph_);
 	auto ptr_stop_from = transport_cataloge_.GetStop(rout_settings.from_station);
 	auto ptr_stop_to = transport_cataloge_.GetStop(rout_settings.to_station);
 	if (ptr_stop_from == ptr_stop_to) {
@@ -205,7 +204,7 @@ std::optional<std::vector<RouterTransport::TransportRouter::Weight>> RouterTrans
 	size_t pos_to = std::distance(set_for_graph_.begin(), it_stop_to);
 
 
-	auto route = router.BuildRoute(pos_from, pos_to);
+	auto route = router_ptr_->BuildRoute(pos_from, pos_to);
 	std::vector<Weight> result;
 	if (route)
 	{
