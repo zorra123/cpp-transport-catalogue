@@ -1,15 +1,14 @@
 #include "transport_catalogue.h"
 
 using namespace DataBase;
-using namespace stops;
-using namespace buses;
-
+//using namespace stops;
+//using namespace buses;
 
 void TransportCatalogue::AddBus(const std::string& num, const std::vector<std::string>& name_stops, bool flag_is_cirle_route) {
 	class_buses_.AddBus(num, name_stops, flag_is_cirle_route);
 }
 
-const Buses::Bus* TransportCatalogue::GetBus(std::string_view num_bus) const
+const buses::Buses::Bus* TransportCatalogue::GetBus(std::string_view num_bus) const
 {
 	return class_buses_.GetBus(num_bus);
 }
@@ -19,12 +18,12 @@ void TransportCatalogue::AddStop(const std::string& name, double latitude, doubl
 	class_stops_.AddStop(stops::Stops::Stop{ name,{latitude,longitude},{} });
 }
 
-Stops::Stop* TransportCatalogue::GetStop(std::string_view name_stop) const
+stops::Stops::Stop* TransportCatalogue::GetStop(std::string_view name_stop) const
 {
 	return class_stops_.GetStop(name_stop);
 }
 
-TransportCatalogue::Distance TransportCatalogue::CalculateRealDistance(const Buses::Bus* bus)const {
+TransportCatalogue::Distance TransportCatalogue::CalculateRealDistance(const buses::Buses::Bus* bus)const {
 	int distance_real = 0;
 	double distance_geographical = 0;
 	std::set< std::string_view> unic_stops;

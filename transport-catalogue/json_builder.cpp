@@ -11,22 +11,6 @@ Builder::KeyItem Builder::Key(std::string key){
 	return KeyItem(*this);
 }
 
-//Builder& json::Builder::Value(Node::Value val)
-//{
-//	if (state.top() == Statements::KEY) {
-//		state.pop();
-//	}
-//	else if (!(state.top() == Statements::CREATE || state.top() == Statements::STARTARRAY)) {
-//		throw std::logic_error("Problems with insert value");
-//	}
-//	else if (state.top() == Statements::CREATE) {
-//		state.push(Statements::VALUE);
-//	}
-//	nodes_stack_.push_back(new Node(val));
-//	return *this;
-//}
-
-
 Builder::DictItem json::Builder::StartDict() {
 	if (!(state.top() == Statements::CREATE || state.top() == Statements::KEY || state.top() == Statements::STARTARRAY)) {
 		throw std::logic_error("Problems with start dict");
@@ -103,16 +87,6 @@ Node json::Builder::Build()
 	root_ = std::move(*nodes_stack_.back());
 	return root_;
 }
-
-//Builder::KeyValueItem Builder::KeyItem::Value(json::Node::Value value) {
-//    builder_.Value(std::move(value));
-//    return KeyValueItem{builder_};
-//}
-//
-//Builder::ArrayItem Builder::ArrayItem::Value(json::Node::Value value) {
-//    builder_.Value(std::move(value));
-//    return ArrayItem{builder_};
-//}
 
 Builder::KeyItem Builder::Context::Key(std::string key) {
     return builder_.Key(std::move(key));

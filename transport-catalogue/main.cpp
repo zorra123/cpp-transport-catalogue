@@ -11,13 +11,23 @@ using namespace std;
 
 
 
-int main(int argc, char* argv[]) {
-	ifstream file("..\\my.json"s);
-
+int main() {
+	
+	/*ifstream file("my.json"s);
+	ofstream file2;
+	file2.open("out.json"s);	
+	if (file.is_open() && file2.is_open()) {
+		DataBase::TransportCatalogue catalog;
+		Request::RequestHandler req(catalog);
+		ReadJson(file, req);
+		//ReadJson(std::cin, req);
+		req.PrintAnswer(file2);
+	}
+	else { std::cout << "files not open" << std::endl; }*/
+	
 	DataBase::TransportCatalogue catalog;
 	Request::RequestHandler req(catalog);
-	ReadJson(file, req);
-	//ReadJson(std::cin, req);
+	ReadJson(std::cin, req);
 	req.PrintAnswer(std::cout);
 	return 0;
 }

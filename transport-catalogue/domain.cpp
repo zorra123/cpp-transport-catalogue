@@ -42,3 +42,4 @@ const Buses::Bus* buses::Buses::GetBus(std::string_view num_bus) const
 		return nullptr;
 	}
 }
+

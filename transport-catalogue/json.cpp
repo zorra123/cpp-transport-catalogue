@@ -469,5 +469,4 @@ void Print(const Document& doc, std::ostream& output) {
     PrintNode(doc.GetRoot(), PrintContext{output});
 }
 
-
 }  // namespace json

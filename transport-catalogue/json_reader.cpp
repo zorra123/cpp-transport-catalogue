@@ -5,10 +5,11 @@
 #include <list>
 #include <algorithm>
 #include <memory>
-#include "json.h"
-#include "json_reader.h"
 #include <fstream>
 #include "map_renderer.h"
+#include "json.h"
+#include "json_reader.h"
+#include "transport_router.h"
 
 
 using namespace std::string_literals;
@@ -32,6 +33,7 @@ private:
 	std::unique_ptr<json::Array> buses_;
 	std::unique_ptr<json::Array> stat_requests_;
 	std::unique_ptr<json::Dict> render_settings_;
+	RouterTransport::TransportRouter::RoutingSettings routing_settings_;
 	std::istream& stream_;
 	Request::RequestHandler& request_handler_;
 };
@@ -53,6 +55,10 @@ void JsonReader::LoadStops()
 	{
 		str += line;
 	}
+	//for (int i = 0; i < 254; ++i) {
+	//	getline(stream_, line);
+	//	str += line;
+	//}
 
 	auto ptr_map_requsts = std::make_unique<json::Document>(json::LoadJSON(str));
 	auto& map_requsts = ptr_map_requsts->GetRoot().AsDict();
@@ -82,6 +88,14 @@ void JsonReader::LoadStops()
 	stat_requests_ = std::make_unique<json::Array>(map_requsts.at("stat_requests"s).AsArray());
 	if (map_requsts.count("render_settings")) {
 		render_settings_ = std::make_unique<json::Dict>(map_requsts.at("render_settings"s).AsDict());
+	}
+	if (map_requsts.count("routing_settings")) {
+		//время задается в мин
+		routing_settings_.wait = map_requsts.at("routing_settings"s).AsDict().at("bus_wait_time").AsDouble();
+		//скорось сразу переведем из км/ч в м/мин
+		static const double METER_AT_KM = 1000.0;
+		static const double MIN_AT_HOUR = 60.0;
+		routing_settings_.velocity = (double)map_requsts.at("routing_settings"s).AsDict().at("bus_velocity").AsDouble()* METER_AT_KM/ MIN_AT_HOUR;
 	}
 }
 
@@ -172,6 +186,12 @@ void JsonReader::LoadRequests()
 			std::string name_stop = el.AsDict().at("name").AsString();
 			int id = el.AsDict().at("id").AsInt();
 			request_handler_.RequestStop(name_stop, id);
+		}
+		else if (el.AsDict().at("type").AsString() == "Route") {
+			routing_settings_.from_station = el.AsDict().at("from").AsString();
+			routing_settings_.to_station = el.AsDict().at("to").AsString();
+			int id = el.AsDict().at("id").AsInt();
+			request_handler_.RequestRoute(routing_settings_,id);
 		}
 		else {
 			int id = el.AsDict().at("id").AsInt();

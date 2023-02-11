@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <string>
 #include <vector>
+#include <set>
 #include "geo.h"
 #include "domain.h"
 
@@ -42,11 +43,41 @@ namespace DataBase {
 			int num_unic_stops;
 		};
 		Distance CalculateRealDistance(const buses::Buses::Bus* bus)const;
-			
+
+		auto StopsCBegin()const {
+			return class_stops_.StopsCBegin();
+		}
+		auto StopsCEnd()const {
+			return class_stops_.StopsCEnd();
+		}
+		auto BusesCBegin()const {
+			return class_buses_.BusesCBegin();
+		}
+		auto BusesCEnd()const {
+			return class_buses_.BusesCEnd();
+		}
+		auto GetPtrToBus(std::string_view bus) {
+			return class_buses_.GetPtrFromContainer(bus);
+		}
+		auto GetPtrToStop(std::string_view stop) {
+			return class_stops_.GetStop(stop);
+		}
+		const auto GetDistance(const stops::Stops::Stop* first_station,
+								const stops::Stops::Stop* second_station) const {
+			if (map_for_distance.count({ first_station,second_station })) {
+				return map_for_distance.at({ first_station,second_station });
+			}
+			else if (map_for_distance.count({ second_station,first_station })) {
+				return map_for_distance.at({ second_station,first_station });
+			}
+			return 0;
+			/*return map_for_distance.count({ first_station,second_station }) ? map_for_distance.at({ first_station,second_station }) : 
+																				map_for_distance.at({ second_station,first_station });*/
+		}
 	private:
 		struct DistanceBetweenStops {
-			stops::Stops::Stop* first_station = nullptr;
-			stops::Stops::Stop* second_station = nullptr;
+			const stops::Stops::Stop* first_station = nullptr;
+			const stops::Stops::Stop* second_station = nullptr;
 			bool operator==(const DistanceBetweenStops& rhs) const {
 				return first_station->name == rhs.first_station->name && second_station->name == rhs.second_station->name;
 			}
